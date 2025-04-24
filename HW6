@@ -1,0 +1,70 @@
+.386
+.model flat, stdcall
+.stack 4096
+INCLUDE Irvine32.inc
+
+.data
+array   SDWORD  10, 20, 30, 40, 50
+size    DWORD   5
+j1      DWORD   1
+k1      DWORD   3
+j2      DWORD   0
+k2      DWORD   4
+msg1    BYTE    "Sum (1 to 3): ", 0
+msg2    BYTE    "Sum (0 to 4): ", 0
+
+.code
+main PROC
+    push k1
+    push j1
+    push size
+    push OFFSET array
+    call SumRange
+    mov edx, OFFSET msg1
+    call WriteString
+    call WriteInt
+    call Crlf
+
+    push k2
+    push j2
+    push size
+    push OFFSET array
+    call SumRange
+    mov edx, OFFSET msg2
+    call WriteString
+    call WriteInt
+    call Crlf
+
+    exit
+main ENDP
+
+SumRange PROC
+    push ebp
+    mov ebp, esp
+    push ebx
+    push esi
+    push edi
+
+    mov esi, [ebp+20]    
+    mov edi, [ebp+12]    
+    mov ebx, [ebp+8]     
+    xor eax, eax         
+
+sum_loop:
+    cmp edi, ebx
+    jg done
+    mov edx, edi
+    shl edx, 2
+    add eax, [esi+edx]
+    inc edi
+    jmp sum_loop
+
+done:
+    pop edi
+    pop esi
+    pop ebx
+    pop ebp
+    ret 16
+SumRange ENDP
+
+END main
