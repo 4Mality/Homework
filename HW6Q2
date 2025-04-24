@@ -1,0 +1,86 @@
+.386
+.model flat, stdcall
+.stack 4096
+INCLUDE Irvine32.inc
+
+.data
+msg1    BYTE "Score: ", 0
+msg2    BYTE " Grade: ", 0
+newline BYTE 13, 10, 0
+
+.code
+main PROC
+    mov ecx, 10            ; loop 10 times
+
+nextScore:
+    call RandomRange       ; generate random number 50–100
+    mov eax, 51            ; 100 - 50 + 1 = 51
+    call RandomRange       ; returns 0–50 in EAX
+    add eax, 50            ; offset to 50–100
+
+    ; print score
+    mov edx, OFFSET msg1
+    call WriteString
+    call WriteInt
+
+    ; get grade
+    push eax               ; pass score
+    call CalcGrade
+    pop eax                ; restore EAX (optional here)
+
+    ; print grade
+    mov edx, OFFSET msg2
+    call WriteString
+    mov dl, al             ; move grade to DL
+    call WriteChar
+    call Crlf
+
+    loop nextScore
+
+    exit
+main ENDP
+
+; CalcGrade: Receives score (0–100) in EAX
+; Returns: grade (A–F) in AL
+
+CalcGrade PROC
+    push ebx
+
+    mov ebx, eax       ; copy score to EBX for comparison
+
+    cmp ebx, 90
+    jae giveA
+
+    cmp ebx, 80
+    jae giveB
+
+    cmp ebx, 70
+    jae giveC
+
+    cmp ebx, 60
+    jae giveD
+
+    mov al, 'F'
+    jmp done
+
+giveA:
+    mov al, 'A'
+    jmp done
+
+giveB:
+    mov al, 'B'
+    jmp done
+
+giveC:
+    mov al, 'C'
+    jmp done
+
+giveD:
+    mov al, 'D'
+
+done:
+    pop ebx
+    ret
+CalcGrade ENDP
+
+END main
